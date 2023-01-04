@@ -1,4 +1,4 @@
-#Lise Chess Engine
+## Lise Chess Engine
 
 Lise is Discord chess engine, that allows users to play
 chess games with Lise engine
