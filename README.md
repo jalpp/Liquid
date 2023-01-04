@@ -6,7 +6,7 @@ chess games with Lise engine
 ## Usage
 
 **/move <String (SAN/LAN) chess move>**
-play a chess with Lise, using /move to input chess moves
+play a chess move with Lise, using /move to input chess moves
 
 
 **/resetboard**
