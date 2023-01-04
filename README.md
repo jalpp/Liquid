@@ -20,7 +20,7 @@ reset, start, end a chess game with Lise
 
 ## Engine Algorithm
 
-Lise is aroung beginner engine, who can play two main openings
+Lise is a beginner engine, who can play two main openings
 Hippo defense and King's Indian Defense(Attack). Even though Lise can
 play openings well, it plays middlegames and endgames like a beginner
 player via using random legal chess moves. 
