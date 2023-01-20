@@ -25,6 +25,11 @@ Hippo defense and King's Indian Defense(Attack). Even though Lise can
 play openings well, it plays middlegames/endgames like a intermediate 
 player via using negamax + openingbook + basic eval function.
 
+**Opening Book**
+
+- [Hippo Defence](https://en.wikipedia.org/wiki/Hippopotamus_Defence)
+- [King's Indian Defence](https://en.wikipedia.org/wiki/King%27s_Indian_Defence)
+
 **Negamax Algorithm**
 [Chessprogramming.org](https://www.chessprogramming.org/Negamax)
 
