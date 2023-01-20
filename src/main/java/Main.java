@@ -96,7 +96,7 @@ public class Main extends ListenerAdapter {
                     this.board.doMove(makemove);
 
 
-                    engine.playRandomLegalMoves();
+                    engine.abstractedRandomizer();
 
                     event.reply(engine.getImageOfCurrentBoard()).queue();
                     event.getChannel().sendMessage("** Your Turn!** ").queue();
