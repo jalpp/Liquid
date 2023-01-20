@@ -22,8 +22,29 @@ reset, start, end a chess game with Lise
 
 Lise is a beginner engine, who can play two main openings
 Hippo defense and King's Indian Defense(Attack). Even though Lise can
-play openings well, it plays middlegames and endgames like a beginner
-player via using random legal chess moves. 
+play openings well, it plays middlegames/endgames like a intermediate 
+player via using negamax + openingbook + basic eval function.
+
+**Negamax Algorithm**
+[Chessprogramming.org](https://www.chessprogramming.org/Negamax)
+
+- runs on depth 5, more the depth better move but slower search (not ideal for Discord)
+- functions with eval function 
+
+**Eval function**
+
+- takes account of chess board area and all legal moves
+- compares current player's piece value count to oppoenet's
+- looks into if its own king is attacked
+
+**Piece Value**
+The engine takes account a basic piece value 
+
+- Bishop & Knight 3 points
+- Pawn 1 point
+- Rook 5 points
+- Queen 15 points
+- King Max Integer points
 
 ## Engine Upgrades
 
@@ -33,6 +54,7 @@ Lise is still being worked on, with intentions to add
 - more opening support
 - support for playing white side
 - support for tactics creation
+- transition to NN for dynamic piece values
 
 ## Setup
 
