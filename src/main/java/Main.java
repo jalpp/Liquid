@@ -24,6 +24,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+
+Discord Bot runner, provides front end for Lise's logic in Discord UI, uses Lichess gifs for image generation 
+
+ */
+
 
 public class Main extends ListenerAdapter {
 

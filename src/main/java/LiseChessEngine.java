@@ -120,7 +120,8 @@ public class LiseChessEngine {
     }
     
     
-    // critical Engine algo, plays best chess move from negamax algo + opening book, if openings don't go as planned well, you just play the best move!
+    // Opening Engine algo which can be used in Discord, for Lichess sides switch resulting this algo to break
+    // plays best chess move from negamax algo + opening book, if openings don't go as planned well, you just play the best move!
 
 
     public void abstractedRandomizer(){
@@ -179,7 +180,7 @@ public class LiseChessEngine {
 
        // return this.board;
     }
-    
+    // main chess algo for Lichess
     // find the best chess move according to negamax algo, depth set to 5 for less search fast moves to plat
 
     public Move findBestMove() {
@@ -188,7 +189,7 @@ public class LiseChessEngine {
         Move bestMove = null;
         for (Move move : this.board.legalMoves()) {
             this.board.doMove(move);
-            int value = -negamax(depth -1 , Integer.MAX_VALUE, Integer.MIN_VALUE);
+            int value = -negamax(depth -1 , Integer.MIN_VALUE, Integer.MAX_VALUE);
             this.board.undoMove();
             if (value > bestValue) {
                 bestValue = value;
@@ -222,6 +223,8 @@ public class LiseChessEngine {
     
     
     // piece value function, follows "normal" chess piece values
+    // change piece value from 1 to 100 to 1000 according the higher the value, the better eval function's move findings
+    // for Lise queen and king are same value, to help in endgames
 
 
 
@@ -229,44 +232,43 @@ public class LiseChessEngine {
         int value = 0;
         switch (p){
             case WHITE_PAWN:
-                return 1;
+                return 100;
             case WHITE_BISHOP:
-                return 3;
-                //break;
+                return 300;
+               
             case WHITE_KNIGHT:
-                return 3;
-                //break;
+                return 300;
+               
             case WHITE_ROOK:
-                return 5;
-               // break;
+                return 500;
+               
             case WHITE_QUEEN:
-                return 15;
-               // break;
+                return 1000;
+               
             case WHITE_KING:
-                return Integer.MAX_VALUE;
-               // break;
+                return 1000;
+              
             case BLACK_PAWN:
-                return 1;
-               // break;
+                return 100;
+               
             case BLACK_BISHOP:
-                return 3;
-            //break;
+                return 300;
+            
             case BLACK_KNIGHT:
-                return 3;
-           // break;
+                return 300;
 
             case BLACK_ROOK:
-                return 5;
-            //break;
+                return 500;
+           
             case BLACK_QUEEN:
-                return 15;
-            //break;
+                return 1000;
+            
             case BLACK_KING:
-                return Integer.MAX_VALUE;
-            //break;
+                return 1000;
+            
             default:
                 return 0;
-            //break;
+           
         }
         //return 0;
     }
@@ -298,17 +300,13 @@ public class LiseChessEngine {
         int score = 0;
         // material evaluation
 
-        score += (this.whitePieceAdvantage() - this.blackPieceAdvantage());
+        score += (whitePieceAdvantage() - blackPieceAdvantage());
         
         // chessboard area eval, less space less eval and vise versa
      
         score += this.board.legalMoves().size();
         
-        // king attack eval, if you are under fire run!!
-      
-        if (this.board.isKingAttacked()) {
-            score -= 50;
-        }
+        
         return score;
     }
 
@@ -326,8 +324,6 @@ public class LiseChessEngine {
         }
         return tactics;
     }
-
-
 
 
 
