@@ -12,9 +12,9 @@ import com.github.bhlangonijr.chesslib.move.Move;
 
 Lichess UI runner, provides Lichess GUI and uses Chariot lib for Lichess connection
 
-special thanks to Zamfofox for implementing it from scratch.
+special thanks to Zamfofex for implementing it from scratch.
 
-@author Zamfofox https://github.com/zamfofex
+@author Zamfofex https://github.com/zamfofex
 
 
  */
