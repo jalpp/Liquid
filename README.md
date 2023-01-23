@@ -27,6 +27,8 @@ player via using negamax + openingbook + basic eval function.
 
 **Opening Book**
 
+Runs for Discord, opening book not supported for Lichess
+
 - [Hippo Defence](https://en.wikipedia.org/wiki/Hippopotamus_Defence)
 - [King's Indian Defence](https://en.wikipedia.org/wiki/King%27s_Indian_Defence)
 
@@ -40,16 +42,16 @@ player via using negamax + openingbook + basic eval function.
 
 - takes account of chess board area and all legal moves
 - compares current player's piece value count to oppoenet's
-- looks into if its own king is attacked
+
 
 **Piece Value**
 The engine takes account a basic piece value 
 
-- Bishop & Knight 3 points
-- Pawn 1 point
-- Rook 5 points
-- Queen 15 points
-- King Max Integer points
+- Bishop & Knight 300 points
+- Pawn 100 point
+- Rook 500 points
+- Queen 1000 points
+- King 1000 points
 
 ## Engine Upgrades
 
@@ -65,10 +67,17 @@ Lise is still being worked on, with intentions to add
 
 - obtain discord bot token from Discord dev page
 - set env variable discord-bot-token
+- set env variable lichess_bot_token
 - set up testing discord server
 - run LiseChessEngine locally 
 - run /move and start playing Lise!
 
-## Play Lise
+
+## Play Lise on Discord
  To play Lise you can also configure LISEBOT (with built in commands)
 [Play me!](https://top.gg/bot/930544707300393021)
+
+
+## Play Lise on Lichess
+(Bot maybe down to due to maintaince)
+[Challenge Lise!](https://lichess.org/@/LISEBOT)
