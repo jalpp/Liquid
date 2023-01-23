@@ -17,7 +17,7 @@ reset, start, end a chess game with Lise
 - [Chariot](https://github.com/tors42/chariot)
 - [Java chessLib](https://github.com/bhlangonijr/chesslib) 
 - [Lichess Gifs](https://github.com/lichess-org/lila-gif)
-- [Zamfofox](https://github.com/zamfofex) **For setting up Lichess connection (Thank you!)** 
+- [Zamfofex](https://github.com/zamfofex) **For setting up Lichess connection (Thank you!)** 
 
 ## Engine Algorithm
 
