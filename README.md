@@ -28,10 +28,9 @@ just challenge LISEBOT and play Lise in real time!
 
 - Beating Stockfish level 1
 
-https://lichess1.org/game/export/gif/white/3yXuqQdK.gif?theme=blue&piece=cardinal
 
 - drawing 3 times to beginner trained Maia Chess engine
-https://lichess1.org/game/export/gif/white/Yfcf1R6t.gif?theme=blue&piece=cardinal
+
 
 
 ## Engine Algorithm
