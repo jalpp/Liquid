@@ -1,9 +1,9 @@
 ## Lise Chess Engine
 
-Lise is Discord chess engine, that allows users to play
-chess games with Lise engine
+Lise is Beginner chess engine, that uses basic piece value and negamax algo. 
 
-## Usage
+
+## Discord Usage
 
 **/move <String (SAN/LAN) chess move>**
 play a chess move with Lise, using /move to input chess moves
@@ -12,12 +12,27 @@ play a chess move with Lise, using /move to input chess moves
 **/resetboard**
 reset, start, end a chess game with Lise
 
+## Lichess usage 
+
+just challenge LISEBOT and play Lise in real time!
+
 ## Remarks
 - [JDA](https://github.com/DV8FromTheWorld/JDA)
 - [Chariot](https://github.com/tors42/chariot)
 - [Java chessLib](https://github.com/bhlangonijr/chesslib) 
 - [Lichess Gifs](https://github.com/lichess-org/lila-gif)
 - [Zamfofex](https://github.com/zamfofex) **For setting up Lichess connection (Thank you!)** 
+
+
+## Lise Acheivements:
+
+- Beating Stockfish level 1
+
+https://lichess1.org/game/export/gif/white/3yXuqQdK.gif?theme=blue&piece=cardinal
+
+- drawing 3 times to beginner trained Maia Chess engine
+https://lichess1.org/game/export/gif/white/Yfcf1R6t.gif?theme=blue&piece=cardinal
+
 
 ## Engine Algorithm
 
