@@ -40,16 +40,16 @@ public class Lichess {
                 var gameEvents = bot.connectToGame(event.id()).stream();
                 var board = new Board();
                 var engine = new LiseChessEngine(board);
+                    
                 boolean[] isWhite = {false};
-
-                // todo: handle an ongoing game
+                    
                 gameEvents.forEach(gameEvent -> {
                     switch (gameEvent.type()) {
 
                     case gameFull:
                         isWhite[0] = ((GameEvent.Full) gameEvent).white().name().toLowerCase().equals(username);
                         if (isWhite[0]) {
-                            var move = engine.findBestMove();
+                            var move = engine.generateMoveFromIndexLookUp(board);
                             bot.move(event.id(), move.toString());
                             board.doMove(move);
                         }
@@ -73,7 +73,7 @@ public class Lichess {
                                 board.doMove(move);
                             }
 
-                            var move = engine.findBestMove();
+                            var move = engine.generateMoveFromIndexLookUp(board);
                             bot.move(event.id(), move.toString());
                             board.doMove(move);
                         }
