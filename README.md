@@ -40,6 +40,10 @@ Hippo defense and King's Indian Defense(Attack). Even though Lise can
 play openings well, it plays middlegames/endgames like a intermediate 
 player via using negamax + openingbook + basic eval function.
 
+**Algorithms**
+
+LiseChessEngine uses Minimax, Negamax and Lookup table Index algo
+
 **Opening Book**
 
 Runs for Discord, opening book not supported for Lichess
