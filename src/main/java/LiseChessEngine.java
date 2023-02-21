@@ -10,11 +10,6 @@ import java.util.*;
 
 public class LiseChessEngine {
 
-
-
-
-
-
     private Board board;
     private ArrayList<Board> trainingGames = new ArrayList<>();
     private String[] openingBook;
@@ -32,10 +27,6 @@ public class LiseChessEngine {
     public LiseChessEngine(Board board){
         this.board = board;
     }
-
-
-
-
 
 
 
@@ -160,9 +151,9 @@ public class LiseChessEngine {
                 }
 
 
-                //this.board.setSideToMove(Side.WHITE);
+               
             }catch (Exception e){
-                //this.board.undoMove();
+               
 
                 this.board.doMove(findBestMove());
             }
@@ -171,7 +162,7 @@ public class LiseChessEngine {
 
         else{
 
-            //this.board.
+          
             this.board.doMove(findBestMove());
         }
 
@@ -187,15 +178,13 @@ public class LiseChessEngine {
 
 
 
-        // return this.board;
+       
     }
 
 
     public Move getKingsRunningSqs(){
         return this.board.legalMoves().get(this.board.legalMoves().size()-1);
     }
-    
-    // the tail of legal moves
 
     public List<Move> getTail(){
         List<Move> tail = this.board.legalMoves().subList(((this.board.legalMoves().size()-1)/2),this.board.legalMoves().size()-1 );
@@ -205,7 +194,7 @@ public class LiseChessEngine {
 
 
     // main chess algo for Lichess
-    // find the best chess move according to negamax algo, depth set to 5 for less search fast moves to plat
+    // find the best chess move according to negamax algo, depth set to 4 for less search fast moves to play
 
 
     public Move getBestMove(Board board) {
@@ -239,8 +228,6 @@ public class LiseChessEngine {
 
         return bestMove;
     }
-    
-    // calculate minimax score
 
     private int minimaxScore(Board board, int depth, int maxDepth, int alpha, int beta, Side side) {
         if (depth == maxDepth || board.isMated() || board.isStaleMate()) {
@@ -271,8 +258,6 @@ public class LiseChessEngine {
 
         score += (whitePieceAdvantage() - blackPieceAdvantage());
 
-
-
         // chessboard area eval, less space less eval and vise versa
 
         score += this.board.legalMoves().size();
@@ -281,14 +266,12 @@ public class LiseChessEngine {
     }
 
     
-    // make a relationship between the moves in given legal chess move position to a n number between n to 65 (board size + 1) to set value of a given
-    // move to an n value, (n < 10  bad move where as n >= 64 is ok or best move), use this random eval to make Lise play and judge moves like
-    // a beginner who considers some moves to be great according to its basic thinking (trying to mimic logical human play without chess knowledge)
-    // to make things intresting as white side it plays minimax algo for scholar mate ideas (does not scholar mate though)
-
+    // picks moves based on index lookup with shuffling moves to make the AI play moves from 3 side of chess board
+    
     public Move generateMoveFromIndexLookUp(Board board){
         List<Integer> intPos = new ArrayList<>();
         Random random = new Random();
+        Random movePicker = new Random();
         HashMap<Integer, Move> generator = new HashMap<>();
 
 
@@ -304,30 +287,23 @@ public class LiseChessEngine {
 
         Collections.shuffle(intPos);
 
-
         Move m =  generator.get(intPos.get(new Random().nextInt(intPos.size())));
-
+        int tableBaseMovePicker = movePicker.nextInt(2);
 
         if(board.getSideToMove().equals(Side.WHITE)){
-            return this.getBestMove(board);
+            if(tableBaseMovePicker == 0){
+                return this.playTopTableBaseMove(board);
+            }else {
+                return this.getBestMove(board);
+            }
         }else{
-            return m;
+            if(tableBaseMovePicker == 0){
+                return playTopTableBaseMove(board);
+            }else{
+                return m;
+            }
+
         }
-
-//        if(board.getMoveCounter() <= 10){
-//            if(m.getTo().getFile().name().equalsIgnoreCase("FILE_A") || m.getTo().getFile().name().equalsIgnoreCase("FILE_H")){
-//                List<Move> boardclone = new ArrayList<>();
-//                for(int x = 0; x < board.legalMoves().size(); x++){
-//                    boardclone.add(board.legalMoves().get(x));
-//                }
-//                boardclone.remove(m);
-//                return generator.get(boardclone.get(new Random().nextInt(boardclone.size())));
-//            }
-//            return m;
-//        }
-        //System.out.println(m.getType().toString());
-        //System.out.println(board.isA);
-
 
 
 
@@ -539,6 +515,17 @@ public class LiseChessEngine {
 
     // still in works, better way to implement an endgame tablebase support
 
+
+
+    public Move playTopTableBaseMove(Board board){
+        Client client1 = Client.basic();
+        String annotation = client1.tablebase().standard(board.getFen()).get().moves().get(0).san();
+        Move move = new Move(annotation, board.getSideToMove());
+        return move;
+    }
+
+
+
     public void playTablebaseMoves(){
         // this.board = new Board();
         this.board.setSideToMove(Side.BLACK);
@@ -566,13 +553,6 @@ public class LiseChessEngine {
         ChessUtil chessUtil = new ChessUtil();
         return chessUtil.getImageFromFEN(this.board.getFen());
     }
-
-
-
-
-
-
-
 
 
 
