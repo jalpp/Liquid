@@ -54,7 +54,7 @@ Runs for Discord, opening book not supported for Lichess
 **Negamax Algorithm**
 [Chessprogramming.org](https://www.chessprogramming.org/Negamax)
 
-- runs on depth 5, more the depth better move but slower search (not ideal for Discord)
+- runs on depth 4, more the depth better move but slower search (not ideal for Discord)
 - functions with eval function 
 
 **Eval function**
@@ -66,11 +66,11 @@ Runs for Discord, opening book not supported for Lichess
 **Piece Value**
 The engine takes account a basic piece value 
 
-- Bishop & Knight 300 points
-- Pawn 100 point
-- Rook 500 points
-- Queen 1000 points
-- King 1000 points
+- Bishop & Knight 3 points
+- Pawn 1 point
+- Rook 5 points
+- Queen 9 points
+- King 200 points
 
 ## Engine Upgrades
 
