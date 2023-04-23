@@ -102,7 +102,7 @@ public class Main extends ListenerAdapter {
                     this.board.doMove(makemove);
 
 
-                    engine.abstractedRandomizer();
+                    engine.playDiscordBotMoves();
 
                     event.reply(engine.getImageOfCurrentBoard()).queue();
                     event.getChannel().sendMessage("** Your Turn!** ").queue();
