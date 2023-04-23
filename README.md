@@ -53,7 +53,7 @@ For Discord Lise supports two operations **/resetboard** and **/move** here Lise
 
 - Lichess Lise engine is intermediate type of engine (rating about 1200) that uses its own eval function and negamax and human generative blackside play.
 
-# White Side Eval Function
+## White Side Eval Function
 
 - Give each legal move an identity by assigning it value for given piece it has. This value is inverse of piece value.
 
