@@ -31,7 +31,7 @@ Liquid uses Stockfish's best move to come up with the right move, but according 
 
 Lise is a very simple engine that runs at low depths and performs chess engine role in Discord, its part of Lichess search engine bot's repo code
 
-# Lise mode
+## Lise mode
 
 - Beginner
 
