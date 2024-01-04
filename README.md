@@ -12,14 +12,15 @@ Liquid chess engine tries to replicate human play, self adjusting according to o
 
 ## Liquid's helpers
 
-Liquid uses Stockfish's best move to come up with the right move, but according to the mode it runs in, it can self adjust to using Stockfish or its own logic.
+Liquid uses Stockfish's best move to come up with the right one, but according to its mode, it can self-adjust to using Stockfish or its logic.
 
 - Stockfish [running at various depths for various modes]
-- Negamax algorithm 
+- Negamax algorithm
+- frequency-based blunder logic that plays a stockfish or the best move according to eval function and uses random frequency technique to "throw" like a human and mess up but at same time play the best move
 
 ## Liquid's Eval
 
-  - amount of pieces both sides have
+  - the amount of pieces both sides have
   - both kings are attacked
   - board space and center space 
   - look at captures
@@ -29,7 +30,7 @@ Liquid uses Stockfish's best move to come up with the right move, but according 
 
 # Lise Chess Engine
 
-Lise is a very simple engine that runs at low depths and performs chess engine role in Discord, its part of Lichess search engine bot's repo code
+Lise is a very simple engine that runs at low depths and performs a chess engine role in Discord, it's part of the Lichess search engine bot's repo code
 
 ## Lise mode
 
