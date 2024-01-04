@@ -1,80 +1,51 @@
-## Lise Chess Engine
 
-Lise is a Beginner chess engine, that uses basic piece value and negamax algo. 
+This repo contains source code for (Li)chess search engine bot's Discord chess engine, and (Li)quid chess engine both are part of Lise bot code family.
 
+# Liquid Search Engine [LISE]
+Liquid chess engine tries to replicate human play, self adjusting according to opponent's Lichess blitz rating, named Liquid as it adapts to opponent's rating play meaning plays strong against stronger players, weak against beginner players.
 
-## Discord Usage
+## Liquid comes in 4 modes
+- Beast [2400+]
+- Strong [1900 - 2400]
+- Novice [1400 - 1900]
+- Beginner [0 - 1400]
 
-**/moveblack <String (SAN/LAN) chess move>**
-play a chess move with Lise, using /move to input chess moves
+## Liquid's helpers
 
+Liquid uses Stockfish's best move to come up with the right move, but according to the mode it runs in, it can self adjust to using Stockfish or its own logic.
 
-**/resetboard**
-reset, start, end a chess game with Lise
+- Stockfish [running at various depths for various modes]
+- Negamax algorithm 
 
-## Lichess usage 
+## Liquid's Eval
 
-just challenge LISEBOT and play Lise in real time!
-
-## Remarks
-- [JDA](https://github.com/DV8FromTheWorld/JDA)
-- [Chariot](https://github.com/tors42/chariot)
-- [Java chessLib](https://github.com/bhlangonijr/chesslib) 
-- [Lichess Gifs](https://github.com/lichess-org/lila-gif)
-- [Zamfofex](https://github.com/zamfofex) **For setting up Lichess connection (Thank you!)** 
-
-
-## Lise Achievements:
-
-- Beating Stockfish Level 1
-
-- Drawing to Maia9 (avg rating 1900)
-
-- Drawing to Maia5 (avg rating 1700)
-
-- Drawing 3 times to beginner-trained Maia Chess engine Maia1
-
-- Beating random movers within 5 to 30 moves
-
-Some of the achievements are notable because Lise is using plan search alongside its Eval function to determine the best moves.
+  - amount of pieces both sides have
+  - both kings are attacked
+  - board space and center space 
+  - look at captures
+  - look at which pieces are where
 
 
 
-## Discord Engine Algorithm
+# Lise Chess Engine
 
-For Discord Lise supports two operations **/resetboard** and **/move** here Lise only plays blackside due to Discord's message nature, and algoritm runs on plan negamax move search.
+Lise is a very simple engine that runs at low depths and performs chess engine role in Discord, its part of Lichess search engine bot's repo code
 
-- Simple Negamax move search
+# Lise mode
 
-- Simple eval function considers space only
+- Beginner
 
-
-## Lichess Engine Algorithm
-
-- Lichess Lise engine is an intermediate type of engine (rating about 1200) that uses its own eval function and negamax and human generative blackside play.
-
-## White Side Eval Function
-
-- Give each legal move an identity by assigning it value for the given piece it has. This value is the inverse of the piece value.
-
-- Give each capture an identity by assigning it value for the given piece it has plus a constant of 1 to find re-captures
-
-- Material count for both sides and use the piece Value function
-
-- King Safety and Mating Net Finder
+## Lise's helper
+simple negamax method to search for moves at lower depths
 
 
-## Black Side Function
+## Challenge (Li)quid search engine Lise
 
-Lise uses the shuffling method and an index hashtable to randomly give each legal move a unique value. Alongside this, Lise constantly shuffles legal moves out of order to generate a beginner's approach by playing moves that it thinks are best by assuming moves based on the shuffling method.
-
-
-## Challenge Lise
+Please only challenge white side casual/rated 
 
 Play Lise [Here](https://lichess.org/@/LISEBOT)
 
 # Authors
 @jalpp
 
-Lise is a fun hobby project I maintain and develop after Lise drawing to maia9 I am actively working on the engine to raise its rating to 1500, if you like to contribute feel free, here is [Discord Invite](https://discord.gg/K2NKarM5KV).
 

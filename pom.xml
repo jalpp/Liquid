@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.example</groupId>
-    <artifactId>LiseChessEngine</artifactId>
+    <artifactId>Liquid</artifactId>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -35,11 +35,7 @@
         </repository>
     </repositories>
     <dependencies>
-        <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.2</version>
-        </dependency>
+      
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
@@ -48,14 +44,29 @@
         <dependency>
             <groupId>io.github.tors42</groupId>
             <artifactId>chariot</artifactId>
-            <version>0.0.62</version>
+            <version>0.0.78</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.sornerol</groupId>
+            <artifactId>chesscom-pubapi-wrapper</artifactId>
+            <version>1.4.4</version>
         </dependency>
         <dependency>
             <groupId>com.github.bhlangonijr</groupId>
             <artifactId>chesslib</artifactId>
             <version>1.3.3</version>
         </dependency>
-
+          <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version> 
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.6.0</version>
+        </dependency>
     </dependencies>
 
 </project>
