@@ -1,6 +1,6 @@
 package Engine;
 
-import Lichess.UserProfile;
+
 import chariot.Client;
 import chariot.model.Arena;
 import chariot.model.Enums;
