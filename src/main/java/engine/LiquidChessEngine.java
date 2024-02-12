@@ -16,7 +16,7 @@ public class LiquidSearchEngine {
 
 
     private final Board board;
-   ;
+   
 
 
     /**
