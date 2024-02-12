@@ -1,5 +1,6 @@
 package Engine;
 
+import Lichess.UserProfile;
 import chariot.Client;
 import chariot.model.Arena;
 import chariot.model.Enums;
@@ -15,9 +16,7 @@ import java.util.Random;
 public class LiquidSearchEngine {
 
 
-    private final Board board;
-   
-
+    private static Board board = null;
 
     /**
      * Constructor that builds the chess engine
@@ -25,8 +24,7 @@ public class LiquidSearchEngine {
      */
 
     public LiquidSearchEngine(Board board) {
-        this.board = board;
-    
+        LiquidSearchEngine.board = board;
 
     }
 
@@ -350,7 +348,7 @@ public class LiquidSearchEngine {
 
 
 
-    public Move findBestMoveBasedOnLevels(Liquid_Levels levels, Board board){
+    public String findBestMoveBasedOnLevels(Liquid_Levels levels, Board board){
 
         switch (levels){
 
@@ -387,25 +385,31 @@ public class LiquidSearchEngine {
      */
 
 
-    public Move getMoveBasedOnFreqLevels(Liquid_Levels levels, int frequency, Board board){
+    public String getMoveBasedOnFreqLevels(Liquid_Levels levels, int frequency, Board board){
         Random random = new Random();
-        Move move = new Move(StockFish.getBestMove(13, board.getFen()), board.getSideToMove());
-        Move movelower = new Move(StockFish.getBestMove(5, board.getFen()), board.getSideToMove());
-        Move movehigher = new Move(StockFish.getBestMove(10, board.getFen()), board.getSideToMove());
+        String move = StockFish.getBestMove(13, board.getFen());
+        String movelower = StockFish.getBestMove(5, board.getFen());
+        String movehigher = StockFish.getBestMove(10, board.getFen());
+        String[] candidates = {movehigher, movelower, move};
         boolean isFirstMove = board.getMoveCounter() == 1;
+        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
+
+        List<String> validMovesUCI = b.validMoves().stream()
+                .map(chariot.util.Board.Move::uci)
+                .sorted()
+                .toList();
 
         if(isFirstMove) {
             return move;
         }
 
-        System.out.println(board.getSideToMove());
         switch (levels){
 
             case BEGINNER -> {
                 if(random.nextInt(0, frequency) == 0){
                     return move;
                 }else{
-                    return LiquidFindBestMove(2, board);
+                    return LiquidFindBestMove(2);
                 }
             }
 
@@ -413,7 +417,7 @@ public class LiquidSearchEngine {
                 if(random.nextInt(0,frequency) == 0){
                     return movelower;
                 }else{
-                    return LiquidFindBestMove(2, board);
+                    return LiquidFindBestMove(2);
                 }
             }
 
@@ -421,7 +425,7 @@ public class LiquidSearchEngine {
                 if(random.nextInt(0, frequency) == 0){
                     return movehigher;
                 }else{
-                    return LiquidFindBestMove(2, board);
+                    return LiquidFindBestMove(2);
                 }
             }
 
@@ -448,35 +452,65 @@ public class LiquidSearchEngine {
 
 
         if(userBlitz.isPresent() && !userBlitz.get().perf().glicko().provisional()) {
-            if (blitz_rating > 2400) { //2400+
+            if (blitz_rating > 2500) { //2500+
                 return Liquid_Levels.BEAST;
-            } else if (blitz_rating >= 1900 && blitz_rating < 2400) { // [1900 - 2400]
+            } else if (blitz_rating > 1900 && blitz_rating < 2500) { // [1900 - 2500]
                 return Liquid_Levels.STRONG;
-            } else if (blitz_rating >= 1400 && blitz_rating <= 1900) { // [1400 - 1900]
+            } else if (blitz_rating > 1400 && blitz_rating < 1900) { // [1400 - 1900]
                 return Liquid_Levels.NOVICE;
-            } else {
+            } else if( blitz_rating < 1400){
                 return Liquid_Levels.BEGINNER;
             }
         }else{
-            return Liquid_Levels.BEAST;
+            return determineRandomLevel();
         }
 
-
+        return null;
     }
+
+
+    public static Liquid_Levels determineRandomLevel(){
+        Liquid_Levels[] levels = {Liquid_Levels.BEAST, Liquid_Levels.STRONG, Liquid_Levels.NOVICE, Liquid_Levels.BEGINNER};
+        return levels[new Random().nextInt(levels.length)];
+    }
+
+
+
+
+    public static boolean isValidMove(String move){
+        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
+
+        List<String> validMovesUCI = b.validMoves().stream()
+                .map(chariot.util.Board.Move::uci)
+                .sorted()
+                .toList();
+
+        return validMovesUCI.contains(move);
+    }
+
+
 
     /**
      * Find Liquid's best move using eval and negamax algorithm
      * @param depth depth for analysis
-     * @param board current board state
      * @return Liquid chess engine move
      */
 
 
-    public Move LiquidFindBestMove(int depth, Board board) {
+    public String LiquidFindBestMove(int depth) {
+
+        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
+
+        List<String> validMovesUCI = b.validMoves().stream()
+                .map(chariot.util.Board.Move::uci)
+                .sorted()
+                .toList();
+
+
 
         int bestValue = Integer.MIN_VALUE;
-        Move bestMove = null;
-        for (Move move : board.legalMoves()) {
+        String bestMove = null;
+        for (String move : validMovesUCI) {
             board.doMove(move);
             int value = -negamaxliquid(depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
             board.undoMove();
@@ -486,18 +520,13 @@ public class LiquidSearchEngine {
             }
         }
 
-        try {
 
-            return bestMove;
+            if(isValidMove(bestMove)){
+                return bestMove;
+            }else{
+                return StockFish.getBestMove(5, board.getFen());
 
-
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return board.legalMoves().get(0);
-        }
-
-
-
+            }
     }
 
     /**
@@ -510,12 +539,21 @@ public class LiquidSearchEngine {
      */
 
     private int negamaxliquid(int depth, int alpha, int beta, boolean isMaxPlayer) {
+
+        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
+
+        List<String> validMovesUCI = b.validMoves().stream()
+                .map(chariot.util.Board.Move::uci)
+                .sorted()
+                .toList();
+
+
         if (depth == 0 || board.isMated() || board.isDraw()) {
 
             return evaluateBoard();
         }
         int bestValue = Integer.MIN_VALUE;
-        for (Move move : board.legalMoves()) {
+        for (String move : validMovesUCI) {
             board.doMove(move);
             int value = -negamaxliquid(depth - 1, -beta, -alpha, !isMaxPlayer);
             board.undoMove();
@@ -527,7 +565,41 @@ public class LiquidSearchEngine {
         }
 
 
+
+
         return bestValue;
+    }
+
+
+
+
+    public String EngineInfo(){
+        return "Author: Jalp \n" + "Version: Liquid Engine V11 \n \n Source Code: https://github.com/jalpp/LiseChessEngine \n Please Note Lise uses Stockfish's help, please read source code." +
+                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⠾⠿⠿⠯⣷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣾⠛⠁⠀⠀⠀⠀⠀⠀⠈⢻⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⠿⠁⠀⠀⠀⢀⣤⣾⣟⣛⣛⣶⣬⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠟⠃⠀⠀⠀⠀⠀⣾⣿⠟⠉⠉⠉⠉⠛⠿⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡟⠋⠀⠀⠀⠀⠀⠀⠀⣿⡏⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⠀⠀⣠⡿⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣷⡍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣤⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                "⠀⠀⠀⠀⠀⣠⣼⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠷⣤⣤⣠⣤⣤⡤⡶⣶⢿⠟⠹⠿⠄⣿⣿⠏⠀⣀⣤⡦⠀⠀⠀⠀⣀⡄\n" +
+                "⢀⣄⣠⣶⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠓⠚⠋⠉⠀⠀⠀⠀⠀⠀⠈⠛⡛⡻⠿⠿⠙⠓⢒⣺⡿⠋⠁\n" +
+                "⠉⠉⠉⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀" + "art by (https://emojicombos.com/ocean-ascii-art)";
+
+
+
+    }
+
+
+    public void EngineUCICommands(){
+        System.out.println("LISE UCI COMMANDS: \n");
+        System.out.println("-------------------------------------------------------");
+        System.out.println("isready (check if engine is ready)");
+        System.out.println("level (Change level)");
+        System.out.println("position <FEN_STRING> (get Lise's best move in given FEN)");
+        System.out.println("eval <FEN_STRING> (get Lise's eval in given FEN)");
+        System.out.println("uci (view Lise UCI commands)");
+        System.out.println("quit (Quit the engine)");
+
     }
 
 

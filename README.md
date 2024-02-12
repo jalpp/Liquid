@@ -27,7 +27,37 @@ Liquid uses Stockfish's best move to come up with the right one, but according t
   - look at captures
   - look at which pieces are where
 
+## UCI Protocol 
 
+Liquid uses UCI protocol it supports following commands:
+
+```
+
+LISE UCI COMMANDS: 
+
+-------------------------------------------------------
+isready (check if engine is ready)
+level (Change level)
+position <FEN_STRING> (get Lise's best move in given FEN)
+eval <FEN_STRING> (get Lise's eval in given FEN)
+uci (view Lise UCI commands)
+quit (Quit the engine)
+
+
+```
+
+
+## Running Liquid locally and use it via UCI
+
+```
+git clone LiseChessEngine
+
+cd LiseChessEngine/engine/UCIStarter
+
+java -jar LISEBOT.jar 
+
+
+```
 
 # Lise Chess Engine
 
