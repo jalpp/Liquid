@@ -1,6 +1,6 @@
 package Engine;
 
-import Abstraction.*;
+
 import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.move.MoveGenerator;
