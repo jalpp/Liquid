@@ -28,7 +28,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>Engine.LichessBotRunner</mainClass>
+                            <mainClass>LichessBotRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
