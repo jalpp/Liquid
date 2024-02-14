@@ -52,7 +52,7 @@ quit (Quit the engine)
 ```
 git clone LiseChessEngine
 
-cd LiseChessEngine/engine/UCIStarter
+cd LiseChessEngine/src/main/java/engine/UCIStarter
 
 java -jar LISEBOT.jar 
 
