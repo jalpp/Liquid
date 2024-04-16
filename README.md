@@ -52,9 +52,15 @@ quit (Quit the engine)
 ```
 git clone LiseChessEngine
 
-cd LiseChessEngine/src/main/java/engine/UCIStarter
+cd LiseChessEngine/src
 
-java -jar LISEBOT.jar 
+mvn clean
+
+mvn compile
+
+mvn package
+
+java -jar 4.0-SNAPSHOT.jar
 
 
 ```
@@ -76,6 +82,8 @@ simple negamax method to search for moves at lower depths
 Please only challenge white side casual/rated 
 
 Play Lise [Here](https://lichess.org/@/LISEBOT)
+
+(Please note the Lichess bot may be down some days, due to maintaince/resource limit)
 
 # Authors
 @jalpp

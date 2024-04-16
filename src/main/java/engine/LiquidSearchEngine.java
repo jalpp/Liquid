@@ -1,13 +1,10 @@
 package Engine;
 
-
 import chariot.Client;
-import chariot.model.Arena;
 import chariot.model.Enums;
 import chariot.model.One;
 import chariot.model.PerformanceStatistics;
 import com.github.bhlangonijr.chesslib.*;
-import com.github.bhlangonijr.chesslib.move.Move;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +17,7 @@ public class LiquidSearchEngine {
 
     /**
      * Constructor that builds the chess engine
+     *
      * @param board board state
      */
 
@@ -29,8 +27,56 @@ public class LiquidSearchEngine {
     }
 
     /**
+     * determine how should Liquid adapt based on the opponent's Lichess blitz rating
+     *
+     * @param opponent user
+     * @return the engine level it should auto adapt to
+     */
+
+
+    public static Liquid_Levels determineAdaptability(String opponent) {
+        Client client = Client.basic();
+        One<PerformanceStatistics> userBlitz = client.users().performanceStatisticsByIdAndType(opponent, Enums.PerfType.blitz);
+        int blitz_rating = userBlitz.get().perf().glicko().rating().intValue();
+
+
+        if (userBlitz.isPresent() && !userBlitz.get().perf().glicko().provisional()) {
+            if (blitz_rating > 2500) { //2500+
+                return Liquid_Levels.BEAST;
+            } else if (blitz_rating > 1900 && blitz_rating < 2500) { // [1900 - 2500]
+                return Liquid_Levels.STRONG;
+            } else if (blitz_rating > 1400 && blitz_rating < 1900) { // [1400 - 1900]
+                return Liquid_Levels.NOVICE;
+            } else if (blitz_rating < 1400) {
+                return Liquid_Levels.BEGINNER;
+            }
+        } else {
+            return determineRandomLevel();
+        }
+
+        return null;
+    }
+
+    public static Liquid_Levels determineRandomLevel() {
+        Liquid_Levels[] levels = {Liquid_Levels.BEAST, Liquid_Levels.STRONG, Liquid_Levels.NOVICE, Liquid_Levels.BEGINNER};
+        return levels[new Random().nextInt(levels.length)];
+    }
+
+    public static boolean isValidMove(String move) {
+        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
+
+        List<String> validMovesUCI = b.validMoves().stream()
+                .map(chariot.util.Board.Move::uci)
+                .sorted()
+                .toList();
+
+        return validMovesUCI.contains(move);
+    }
+
+    /**
      * count how much chess pieces a side has
-     * @param fen board fen
+     *
+     * @param fen  board fen
      * @param side side black or white
      * @return List of piece counts
      */
@@ -130,23 +176,23 @@ public class LiquidSearchEngine {
 
     /**
      * calculate piece eval for the current board state
+     *
      * @param board current board state
      * @return the piece eval
      */
 
-    public int calculatePieceEval(com.github.bhlangonijr.chesslib.Board board){
+    public int calculatePieceEval(com.github.bhlangonijr.chesslib.Board board) {
 
         List<Integer> whiteSide = countPiecesByTypeForSide(board.getFen(), 'w');
         List<Integer> blackSide = countPiecesByTypeForSide(board.getFen(), 'b');
 
-        int evalwhite = (whiteSide.get(0) * 10) + (whiteSide.get(1) * 30) + (whiteSide.get(2) * 50) + (whiteSide.get(3) * 150) + (whiteSide.get(4) * 30) + (1 * 700);
-        int evalblack = (blackSide.get(0) * 10) + (blackSide.get(1) * 30) + (blackSide.get(2) * 50) + (blackSide.get(3) * 150) + (blackSide.get(4) * 30) + (1 * 700);
+        int evalwhite = (whiteSide.get(0) * 10) + (whiteSide.get(1) * 30) + (whiteSide.get(2) * 50) + (whiteSide.get(3) * 150) + (whiteSide.get(4) * 30) + (700);
+        int evalblack = (blackSide.get(0) * 10) + (blackSide.get(1) * 30) + (blackSide.get(2) * 50) + (blackSide.get(3) * 150) + (blackSide.get(4) * 30) + (700);
 
         return (evalwhite - evalblack);
 
 
     }
-
 
     /**
      * evaluate the current board state based on:
@@ -155,6 +201,7 @@ public class LiquidSearchEngine {
      * - board space and center space
      * - look at captures
      * - look at which pieces are where
+     *
      * @return eval for the board
      */
 
@@ -194,7 +241,7 @@ public class LiquidSearchEngine {
                         } else {
                             scorew += KING_VALUE;
                         }
-                    }else if(board.getSideToMove().flip().equals(Side.BLACK)){
+                    } else if (board.getSideToMove().flip().equals(Side.BLACK)) {
                         if (board.getPiece(board.legalMoves().get(i).getFrom()).getPieceType().equals(PieceType.BISHOP)) {
                             scoreb -= BISHOP_VALUE;
                         } else if (board.getPiece(board.legalMoves().get(i).getFrom()).getPieceType().equals(PieceType.KNIGHT)) {
@@ -205,7 +252,7 @@ public class LiquidSearchEngine {
                             scoreb -= QUEEN_VALUE;
                         } else if (board.getPiece(board.legalMoves().get(i).getFrom()).getPieceType().equals(PieceType.ROOK)) {
                             scoreb -= ROOK_VALUE;
-                        } else if (board.getPiece(board.legalMoves().get(i).getFrom()).getPieceType().equals(PieceType.KING)){
+                        } else if (board.getPiece(board.legalMoves().get(i).getFrom()).getPieceType().equals(PieceType.KING)) {
                             scoreb -= KING_VALUE;
                         }
 
@@ -213,8 +260,7 @@ public class LiquidSearchEngine {
                 }
 
 
-
-                if(!board.isKingAttacked()) {
+                if (!board.isKingAttacked()) {
                     for (int j = 0; j < board.pseudoLegalCaptures().size(); j++) {
                         if (board.getSideToMove().equals(Side.WHITE)) {
                             if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.BISHOP)) {
@@ -230,7 +276,7 @@ public class LiquidSearchEngine {
                             } else {
                                 scorew += KING_VALUE + 1;
                             }
-                        } else if(board.getSideToMove().flip().equals(Side.BLACK)){
+                        } else if (board.getSideToMove().flip().equals(Side.BLACK)) {
                             if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.BISHOP)) {
                                 scoreb -= BISHOP_VALUE + 3;
                             } else if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.KNIGHT)) {
@@ -241,36 +287,36 @@ public class LiquidSearchEngine {
                                 scoreb -= QUEEN_VALUE + 9;
                             } else if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.ROOK)) {
                                 scoreb -= ROOK_VALUE + 8;
-                            } else if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.KING)){
+                            } else if (board.getPiece(board.pseudoLegalCaptures().get(j).getFrom()).getPieceType().equals(PieceType.KING)) {
                                 scoreb -= KING_VALUE + 1;
                             }
 
                         }
                     }
 
-                    for(int j = 0; j < board.getPieceLocation(Piece.WHITE_BISHOP).size(); j++){
-                        if(board.getPieceLocation(Piece.WHITE_BISHOP).get(j).getFile().equals(File.FILE_A) ||
-                                board.getPieceLocation(Piece.WHITE_BISHOP).get(j).getFile().equals(File.FILE_H)){
+                    for (int j = 0; j < board.getPieceLocation(Piece.WHITE_BISHOP).size(); j++) {
+                        if (board.getPieceLocation(Piece.WHITE_BISHOP).get(j).getFile().equals(File.FILE_A) ||
+                                board.getPieceLocation(Piece.WHITE_BISHOP).get(j).getFile().equals(File.FILE_H)) {
                             scorew -= BISHOP_VALUE - 1;
                         }
                     }
 
-                    for(int p = 0; p < board.getPieceLocation(Piece.WHITE_PAWN).size(); p++){
-                        if(board.getPieceLocation(Piece.WHITE_PAWN).get(p).getFile().equals(File.FILE_D)
+                    for (int p = 0; p < board.getPieceLocation(Piece.WHITE_PAWN).size(); p++) {
+                        if (board.getPieceLocation(Piece.WHITE_PAWN).get(p).getFile().equals(File.FILE_D)
                                 || board.getPieceLocation(Piece.WHITE_PAWN).get(p).getFile().equals(File.FILE_C) ||
-                                board.getPieceLocation(Piece.WHITE_PAWN).get(p).getFile().equals(File.FILE_E)){
+                                board.getPieceLocation(Piece.WHITE_PAWN).get(p).getFile().equals(File.FILE_E)) {
                             scorew += PAWN_VALUE * 5;
                         }
                     }
 
-                    for(int n = 0; n < board.getPieceLocation(Piece.WHITE_KNIGHT).size(); n++){
-                        if(board.getPieceLocation(Piece.WHITE_KNIGHT).get(n).getFile().equals(File.FILE_A)
-                                || board.getPieceLocation(Piece.WHITE_KNIGHT).get(n).getFile().equals(File.FILE_H)){
+                    for (int n = 0; n < board.getPieceLocation(Piece.WHITE_KNIGHT).size(); n++) {
+                        if (board.getPieceLocation(Piece.WHITE_KNIGHT).get(n).getFile().equals(File.FILE_A)
+                                || board.getPieceLocation(Piece.WHITE_KNIGHT).get(n).getFile().equals(File.FILE_H)) {
                             scorew -= KNIGHT_VALUE * 7;
                         }
                     }
 
-                    if(board.getMoveCounter() < 10) {
+                    if (board.getMoveCounter() < 10) {
 
                         for (int r = 0; r < board.getPieceLocation(Piece.WHITE_ROOK).size(); r++) {
                             if (board.getPieceLocation(Piece.WHITE_ROOK).get(r).getFile().equals(File.FILE_A)
@@ -279,7 +325,7 @@ public class LiquidSearchEngine {
                             }
                         }
 
-                    }else{
+                    } else {
                         for (int r = 0; r < board.getPieceLocation(Piece.WHITE_ROOK).size(); r++) {
                             if (board.getPieceLocation(Piece.WHITE_ROOK).get(r).getFile().equals(File.FILE_E)
                                     || board.getPieceLocation(Piece.WHITE_ROOK).get(r).getFile().equals(File.FILE_D)) {
@@ -288,16 +334,16 @@ public class LiquidSearchEngine {
                         }
                     }
 
-                    if(board.getMoveCounter() < 20){
-                        if(board.getKingSquare(Side.WHITE).getFile().equals(File.FILE_D) ||
+                    if (board.getMoveCounter() < 20) {
+                        if (board.getKingSquare(Side.WHITE).getFile().equals(File.FILE_D) ||
                                 (board.getKingSquare(Side.WHITE).getFile().equals(File.FILE_F) ||
-                                        board.getKingSquare(Side.WHITE).getFile().equals(File.FILE_C) && board.getKingSquare(Side.WHITE).getRank().equals(Rank.RANK_2))){
+                                        board.getKingSquare(Side.WHITE).getFile().equals(File.FILE_C) && board.getKingSquare(Side.WHITE).getRank().equals(Rank.RANK_2))) {
                             scorew -= KING_ATTACKED;
                         }
                     }
 
-                }else{
-                    if(board.getSideToMove().equals(Side.WHITE)){
+                } else {
+                    if (board.getSideToMove().equals(Side.WHITE)) {
                         scorew += board.pseudoLegalCaptures().size() + 1;
 
                     } else if (board.getSideToMove().equals(Side.BLACK)) {
@@ -306,33 +352,29 @@ public class LiquidSearchEngine {
                 }
 
 
-
-
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
 
             if (board.isKingAttacked() && board.getSideToMove().equals(Side.WHITE)) {
                 score += KING_ATTACKED;
-            }else{
+            } else {
                 score -= KING_ATTACKED;
             }
 
             if (board.isMated() && board.getSideToMove().equals(Side.WHITE)) {
                 score += KING_MATED;
-            }else{
+            } else {
                 score -= KING_MATED;
             }
 
 
-
-
-            if(board.getSideToMove().equals(Side.WHITE)){
-                return (-1 * score + (scorew - scoreb))/divideFactor;
+            if (board.getSideToMove().equals(Side.WHITE)) {
+                return (-1 * score + (scorew - scoreb)) / divideFactor;
             }
 
-            return (-1 * score + (scorew - scoreb))/divideFactor;
-        }catch (Exception e){
+            return (-1 * score + (scorew - scoreb)) / divideFactor;
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
@@ -341,23 +383,23 @@ public class LiquidSearchEngine {
 
     /**
      * find best move on opponent levels
+     *
      * @param levels opponent level
-     * @param board current board state
+     * @param board  current board state
      * @return Liquid engine move
      */
 
 
+    public String findBestMoveBasedOnLevels(Liquid_Levels levels, Board board) {
 
-    public String findBestMoveBasedOnLevels(Liquid_Levels levels, Board board){
-
-        switch (levels){
+        switch (levels) {
 
             case BEGINNER -> {
                 return getMoveBasedOnFreqLevels(Liquid_Levels.BEGINNER, 3, board);
             }
 
             case NOVICE -> {
-                return getMoveBasedOnFreqLevels(Liquid_Levels.NOVICE, 1 , board);
+                return getMoveBasedOnFreqLevels(Liquid_Levels.NOVICE, 1, board);
             }
 
             case STRONG -> {
@@ -375,17 +417,17 @@ public class LiquidSearchEngine {
 
     }
 
-
     /**
      * get Liquid engine move based on level and frequency of mistakes
-     * @param levels opponent level
+     *
+     * @param levels    opponent level
      * @param frequency frequency of mistakes
-     * @param board current board state
+     * @param board     current board state
      * @return Liquid engine move
      */
 
 
-    public String getMoveBasedOnFreqLevels(Liquid_Levels levels, int frequency, Board board){
+    public String getMoveBasedOnFreqLevels(Liquid_Levels levels, int frequency, Board board) {
         Random random = new Random();
         String move = StockFish.getBestMove(13, board.getFen());
         String movelower = StockFish.getBestMove(5, board.getFen());
@@ -399,32 +441,32 @@ public class LiquidSearchEngine {
                 .sorted()
                 .toList();
 
-        if(isFirstMove) {
+        if (isFirstMove) {
             return move;
         }
 
-        switch (levels){
+        switch (levels) {
 
             case BEGINNER -> {
-                if(random.nextInt(0, frequency) == 0){
+                if (random.nextInt(0, frequency) == 0) {
                     return move;
-                }else{
+                } else {
                     return LiquidFindBestMove(2);
                 }
             }
 
             case NOVICE -> {
-                if(random.nextInt(0,frequency) == 0){
+                if (random.nextInt(0, frequency) == 0) {
                     return movelower;
-                }else{
+                } else {
                     return LiquidFindBestMove(2);
                 }
             }
 
             case STRONG -> {
-                if(random.nextInt(0, frequency) == 0){
+                if (random.nextInt(0, frequency) == 0) {
                     return movehigher;
-                }else{
+                } else {
                     return LiquidFindBestMove(2);
                 }
             }
@@ -437,61 +479,9 @@ public class LiquidSearchEngine {
         return null;
     }
 
-
-    /**
-     * determine how should Liquid adapt based on the opponent's Lichess blitz rating
-     * @param opponent user
-     * @return the engine level it should auto adapt to
-     */
-
-
-    public static Liquid_Levels determineAdaptability(String opponent){
-        Client client = Client.basic();
-        One<PerformanceStatistics> userBlitz = client.users().performanceStatisticsByIdAndType(opponent, Enums.PerfType.blitz);
-        int blitz_rating = userBlitz.get().perf().glicko().rating().intValue();
-
-
-        if(userBlitz.isPresent() && !userBlitz.get().perf().glicko().provisional()) {
-            if (blitz_rating > 2500) { //2500+
-                return Liquid_Levels.BEAST;
-            } else if (blitz_rating > 1900 && blitz_rating < 2500) { // [1900 - 2500]
-                return Liquid_Levels.STRONG;
-            } else if (blitz_rating > 1400 && blitz_rating < 1900) { // [1400 - 1900]
-                return Liquid_Levels.NOVICE;
-            } else if( blitz_rating < 1400){
-                return Liquid_Levels.BEGINNER;
-            }
-        }else{
-            return determineRandomLevel();
-        }
-
-        return null;
-    }
-
-
-    public static Liquid_Levels determineRandomLevel(){
-        Liquid_Levels[] levels = {Liquid_Levels.BEAST, Liquid_Levels.STRONG, Liquid_Levels.NOVICE, Liquid_Levels.BEGINNER};
-        return levels[new Random().nextInt(levels.length)];
-    }
-
-
-
-
-    public static boolean isValidMove(String move){
-        chariot.util.Board b = chariot.util.Board.fromFEN(board.getFen());
-
-        List<String> validMovesUCI = b.validMoves().stream()
-                .map(chariot.util.Board.Move::uci)
-                .sorted()
-                .toList();
-
-        return validMovesUCI.contains(move);
-    }
-
-
-
     /**
      * Find Liquid's best move using eval and negamax algorithm
+     *
      * @param depth depth for analysis
      * @return Liquid chess engine move
      */
@@ -507,7 +497,6 @@ public class LiquidSearchEngine {
                 .toList();
 
 
-
         int bestValue = Integer.MIN_VALUE;
         String bestMove = null;
         for (String move : validMovesUCI) {
@@ -521,19 +510,20 @@ public class LiquidSearchEngine {
         }
 
 
-            if(isValidMove(bestMove)){
-                return bestMove;
-            }else{
-                return StockFish.getBestMove(5, board.getFen());
+        if (isValidMove(bestMove)) {
+            return bestMove;
+        } else {
+            return StockFish.getBestMove(5, board.getFen());
 
-            }
+        }
     }
 
     /**
      * negamax liquid algorithm
-     * @param depth the depth
-     * @param alpha alpha value
-     * @param beta beta value
+     *
+     * @param depth       the depth
+     * @param alpha       alpha value
+     * @param beta        beta value
      * @param isMaxPlayer maxing boolean value
      * @return the value to be used in finding move function
      */
@@ -565,15 +555,11 @@ public class LiquidSearchEngine {
         }
 
 
-
-
         return bestValue;
     }
 
 
-
-
-    public String EngineInfo(){
+    public String EngineInfo() {
         return "Author: Jalp \n" + "Version: Liquid Engine V11 \n \n Source Code: https://github.com/jalpp/LiseChessEngine \n Please Note Lise uses Stockfish's help, please read source code." +
                 "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⠾⠿⠿⠯⣷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
                 "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣾⠛⠁⠀⠀⠀⠀⠀⠀⠈⢻⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
@@ -586,11 +572,10 @@ public class LiquidSearchEngine {
                 "⠉⠉⠉⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀" + "art by (https://emojicombos.com/ocean-ascii-art)";
 
 
-
     }
 
 
-    public void EngineUCICommands(){
+    public void EngineUCICommands() {
         System.out.println("LISE UCI COMMANDS: \n");
         System.out.println("-------------------------------------------------------");
         System.out.println("isready (check if engine is ready)");
@@ -603,6 +588,7 @@ public class LiquidSearchEngine {
     }
 
 
+}
 
 
 

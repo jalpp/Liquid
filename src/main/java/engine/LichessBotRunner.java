@@ -2,11 +2,10 @@ package Engine;
 
 import chariot.Client;
 import chariot.model.Enums;
+import chariot.model.Enums.Speed;
 import chariot.model.Event;
 import chariot.model.GameStateEvent;
 import chariot.model.VariantType;
-import chariot.model.Enums.Speed;
-
 import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 
@@ -20,34 +19,31 @@ public class LichessBotRunner {
     private static boolean isRapid;
     private static boolean isBlitz;
     private static boolean isCla;
-
     private static Liquid_Levels level;
 
 
-
-    public LichessBotRunner(){
+    public LichessBotRunner() {
 
     }
 
 
     public static void main(String[] args) {
 
-        var client = Client.auth(System.getenv("BOT-TOKEN"));
+        var client = Client.auth(System.getenv("LICHESS_TOKEN"));
         var bot = client.bot();
         var events = bot.connect().stream();
         var username = client.account().profile().get().name().toLowerCase();
-        String[] s = {"maia1", "maia5", "maia9", "charibot",  "TurtleBot", "SxRandom", "zeekat", "knucklefish"};
+        String[] s = {"maia9", "lynx_bot"};
         int picker = s.length;
         int index = new Random().nextInt(picker);
         String botname = s[index];
-
         try {
-            level = LiquidSearchEngine.determineAdaptability(botname);
-            bot.challengeKeepAlive(botname, challengeBuilder -> challengeBuilder.clockRapid10m0s().rated(false).color(Enums.ColorPref.white));
-        }catch (Exception e){
+            bot.challengeKeepAlive(botname, challengeBuilder -> challengeBuilder.clockRapid15m10s().rated(false).color(Enums.ColorPref.white));
+            System.out.println("Challenged: " + botname);
+            level = Liquid_Levels.BEAST;
+        } catch (Exception e) {
             System.out.println("Failed Challege " + botname);
         }
-
         events.forEach(event -> {
             switch (event.type()) {
                 case challenge -> {
@@ -55,28 +51,29 @@ public class LichessBotRunner {
                     System.out.println(challenge);
                     boolean isPlaying = Client.basic().users().byId("LISEBOT").get().accountStats().playing() > 1;
                     boolean std = challenge.challenge().gameType().variant() == VariantType.Variant.standard;
+                    boolean isRated = challenge.challenge().gameType().rated();
                     isRapid = challenge.challenge().gameType().timeControl().speed().name().equalsIgnoreCase("rapid");
                     isBlitz = challenge.challenge().gameType().timeControl().speed().name().equalsIgnoreCase("blitz");
                     isCla = challenge.challenge().gameType().timeControl().speed().name().equalsIgnoreCase("classical");
-                    if(!Objects.equals(challenge.challenge().players().challengerOpt().get().user().name(), "LISEBOT")){
-                        level = LiquidSearchEngine.determineAdaptability(challenge.challenge().players().challengerOpt().get().user().name());
+                    if (!isRated) {
+                        if (!Objects.equals(challenge.challenge().players().challengerOpt().get().user().name(), "LISEBOT")) {
+                            level = LiquidSearchEngine.determineAdaptability(challenge.challenge().players().challengerOpt().get().user().name());
+                        }
+                    } else {
+                        level = Liquid_Levels.BEAST;
                     }
-
                     boolean isCoores = challenge.challenge().gameType().timeControl().speed() == Speed.correspondence;
-                    boolean isblackside = challenge.challenge().colorInfo().request().name().equalsIgnoreCase("white");
-                    boolean isRandom = challenge.challenge().colorInfo().request().name().equalsIgnoreCase("random");
                     System.out.println(challenge);
-                    if (std && !isCoores && !isblackside && !isPlaying && !isRandom) {
+                    if (std && !isCoores && !isPlaying && !isRated) {
                         bot.acceptChallenge(event.id());
                     } else if (isCoores) {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::timeControl);
 
-                    } else if (isblackside || isRandom) {
-                        bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::generic);
-                    } else if (isPlaying){
+                    } else if (isPlaying) {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::later);
-                    }
-                    else {
+                    } else if (isRated) {
+                        bot.declineChallenge(event.id(), Enums.DeclineReason.casual);
+                    } else {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::variant);
                     }
                 }
@@ -86,7 +83,6 @@ public class LichessBotRunner {
                     bot.chatSpectators(event.id(), "Thanks for watching!");
                 }
                 case gameStart -> {
-
                     bot.chatSpectators(event.id(), "Running Lise Mode " + level.toString());
                     var gameEvents = bot.connectToGame(event.id()).stream();
                     var board = new Board();
@@ -98,22 +94,61 @@ public class LichessBotRunner {
                             case opponentGone -> bot.abort(event.id());
                             case gameFull -> {
                                 try {
-
-                                    isWhite[0] = ((GameStateEvent.Full) gameEvent).white().name().toLowerCase().equals(username);
-
-                                    System.out.println(isWhite[0]);
+                                    System.out.println(gameEvent);
+                                    isWhite[0] = ((GameStateEvent.Full) gameEvent).white().name().toLowerCase().equalsIgnoreCase(username);
                                     if (isWhite[0]) {
                                         try {
 
                                             var move = engine.findBestMoveBasedOnLevels(level, board);
-                                            bot.move(event.id(), move.toString());
+                                            bot.move(event.id(), move);
                                             board.doMove(move);
-                                            
+                                            System.out.println(move);
 
                                         } catch (Exception e) {
                                             bot.resign(event.id());
                                         }
                                     }
+
+                                    boolean isbotuser = Client.basic().users().byId(((GameStateEvent.Full) gameEvent).white().name()).get().title().orElse("").equalsIgnoreCase("bot");
+                                    System.out.println(isbotuser);
+                                    if (isbotuser && !isWhite[0]) {
+                                        var names = ((GameStateEvent.Full) gameEvent).state().moves().split(" ");
+                                        var whiteTurn = names.length % 2 == 0;
+
+                                        if (!whiteTurn) {
+                                            try {
+                                                var name = names[names.length - 1];
+                                                var from = Square.fromValue(name.substring(0, 2).toUpperCase());
+                                                var to = Square.fromValue(name.substring(2, 4).toUpperCase());
+                                                if (names.length == 5) {
+                                                    var type = PieceType.fromSanSymbol(name.substring(4).toUpperCase());
+                                                    var piece = Piece.make(Side.WHITE, type);
+                                                    var move = new Move(from, to, piece);
+                                                    board.doMove(move);
+                                                } else {
+                                                    var move = new Move(from, to);
+                                                    board.doMove(move);
+                                                }
+                                            } catch (Exception e) {
+                                                bot.resign(event.id());
+                                            }
+                                        }
+
+                                        var move = engine.findBestMoveBasedOnLevels(level, board);
+                                        if (LiquidSearchEngine.isValidMove(move)) {
+                                            System.out.println(move + "Valid move " + board.getSideToMove() + " " + board.getFen());
+                                            bot.move(event.id(), move);
+                                            board.doMove(move);
+                                            System.out.println(board);
+                                        } else {
+                                            System.out.println(move + "Invalid move " + board.getSideToMove() + " " + board.getFen());
+                                            String sideMove = StockFish.getBestMove(13, board.getFen());
+                                            bot.move(event.id(), sideMove);
+                                            board.doMove(sideMove);
+                                            System.out.println(board);
+                                        }
+                                    }
+
 
                                 } catch (Exception e) {
                                     bot.resign(event.id());
@@ -127,7 +162,6 @@ public class LichessBotRunner {
                                     var names = ((GameStateEvent.State) gameEvent).moves().split(" ");
                                     var whiteTurn = names.length % 2 == 0;
 
-                                    System.out.println(whiteTurn);
                                     if (isWhite[0] == whiteTurn) {
                                         try {
                                             var name = names[names.length - 1];
@@ -135,7 +169,7 @@ public class LichessBotRunner {
                                             var to = Square.fromValue(name.substring(2, 4).toUpperCase());
                                             if (names.length == 5) {
                                                 var type = PieceType.fromSanSymbol(name.substring(4).toUpperCase());
-                                                var piece = Piece.make(whiteTurn ? Side.WHITE : Side.BLACK, type);
+                                                var piece = Piece.make(Side.WHITE, type);
                                                 var move = new Move(from, to, piece);
                                                 board.doMove(move);
                                             } else {
@@ -146,31 +180,39 @@ public class LichessBotRunner {
                                             bot.resign(event.id());
                                         }
 
-                                        if(board.getMoveCounter() > 10 && isRapid){
+                                        if (board.getMoveCounter() > 10 && isRapid) {
                                             Thread.sleep(new Random().nextInt(0, 10000));
                                         } else if (board.getMoveCounter() > 10 && isBlitz) {
                                             Thread.sleep(new Random().nextInt(0, 5000));
                                         } else if (board.getMoveCounter() > 10 && isCla) {
                                             Thread.sleep(new Random().nextInt(0, 40000));
-                                        } else{
+                                        } else {
                                             Thread.sleep(0);
                                         }
 
 
-                                        if(board.isKingAttacked()){
+                                        if (board.isKingAttacked()) {
                                             bot.chat(event.id(), "yo watch out!");
                                             bot.chatSpectators(event.id(), "seems like someone's king attacked lol");
                                         }
 
-                                        if(board.isRepetition()){
+                                        if (board.isRepetition()) {
                                             bot.chat(event.id(), "lets repeat I want draw");
                                             bot.chatSpectators(event.id(), "he really trying for draw LOL");
                                         }
 
-                                        bot.chatSpectators(event.id(), "Lise Eval: " + engine.evaluateBoard() + " Stockfish Eval: " + StockFish.getEvalForFEN(13, board.getFen()));
                                         var move = engine.findBestMoveBasedOnLevels(level, board);
-                                        bot.move(event.id(), move.toString());
-                                        board.doMove(move);
+                                        if (LiquidSearchEngine.isValidMove(move)) {
+                                            System.out.println(move + "Valid move " + board.getSideToMove() + " " + board.getFen());
+                                            bot.move(event.id(), move);
+                                            board.doMove(move);
+                                        } else {
+                                            System.out.println(move + "Invalid move " + board.getSideToMove() + " " + board.getFen());
+                                            String sideMove = StockFish.getBestMove(13, board.getFen());
+                                            bot.move(event.id(), sideMove);
+                                            board.doMove(sideMove);
+
+                                        }
 
                                     }
 
@@ -187,7 +229,6 @@ public class LichessBotRunner {
 
 
     }
-
 
 
 }

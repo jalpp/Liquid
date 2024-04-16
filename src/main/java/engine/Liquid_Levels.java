@@ -17,7 +17,7 @@ public enum Liquid_Levels {
 
     @Override
     public String toString() {
-        switch (this){
+        switch (this) {
 
             case BEAST -> {
                 return "Beast";
