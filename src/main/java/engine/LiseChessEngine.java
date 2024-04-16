@@ -90,9 +90,30 @@ public class LiseChessEngine {
         this.board = new Board();
     }
 
+    
+
+      public String getImageFromFEN(String fen, boolean isBlack, String boardColor, String pieceType) {
+        try {
+            String img;
+            this.board.loadFromFen(fen);
+            String[] getImgCord = this.board.getFen().split(" ");
+
+            if (fen.contains("w")) {
+                img = "https://lichess1.org/export/fen.gif?fen=" + getImgCord[0] + "&color=white&theme=" + boardColor + "&piece=" + pieceType;
+            } else {
+                img = "https://lichess1.org/export/fen.gif?fen=" + getImgCord[0] + "&color=black&theme=" + boardColor + "&piece=" + pieceType;
+            }
+
+            return img;
+
+        } catch (Exception e) {
+            return "Please provide a valid FEN!";
+        }
+    }
+
 
     public String getImageOfCurrentBoard(boolean isBlack) {
-        return chessUtil.getImageFromFEN(this.board.getFen(), isBlack, "brown", "kosal");
+        return this.getImageFromFEN(this.board.getFen(), isBlack, "brown", "kosal");
     }
 
 
