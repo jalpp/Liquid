@@ -6,7 +6,7 @@
     <groupId>org.example</groupId>
     <artifactId>Liquid</artifactId>
     <version>4.0-SNAPSHOT</version>
-       <build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -15,10 +15,36 @@
                     <source>17</source>
                     <target>17</target>
                 </configuration>
+                <version>3.13.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>engine.UCIProtocolRunner</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-     <repository>
+    <repositories>
+        <repository>
             <id>dv8tion</id>
             <name>m2-dv8tion</name>
             <url>https://m2.dv8tion.net/releases</url>
@@ -27,6 +53,7 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
