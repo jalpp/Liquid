@@ -92,7 +92,6 @@ public class LiseChessEngine {
 
 
     public String getImageOfCurrentBoard(boolean isBlack) {
-        ChessUtil chessUtil = new ChessUtil();
         return chessUtil.getImageFromFEN(this.board.getFen(), isBlack, "brown", "kosal");
     }
 
