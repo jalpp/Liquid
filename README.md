@@ -10,6 +10,13 @@ Liquid chess engine tries to replicate human play, self-adjusting according to t
 - Novice [1400 - 1900]
 - Beginner [0 - 1400]
 
+
+## Liquid Lichess Ratings
+- Blitz 2230
+- Bullet 2281
+- Rapid 1872
+- Classical 1879?
+
 ## Liquid's helpers
 
 Liquid uses Stockfish's best move to come up with the right one, but according to its mode, it can self-adjust to using Stockfish or its logic.
