@@ -10,6 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class represents the internal state of Liquid Chess Engine
+ * 
+ * Thanks to Stockfish devs for provinding the engine which Liquid uses time to time for help
+ * 
+ * @author jalpp
+ */
+
 public class LiquidSearchEngine {
 
 
