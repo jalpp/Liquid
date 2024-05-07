@@ -12,6 +12,13 @@ import com.github.bhlangonijr.chesslib.move.Move;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * 
+ * This class represents Lichess Bot Runner which takes care of handling Lichess online challenges which Liquid accepts/rejects or sends challenges to other bots to play
+ * Liquid challenges a bot every 3 hours
+ * Liquid now accepts Rated games
+ * 
+ */
 
 public class LichessBotRunner {
 
@@ -33,7 +40,7 @@ public class LichessBotRunner {
         var bot = client.bot();
         var events = bot.connect().stream();
         var username = client.account().profile().get().name().toLowerCase();
-        String[] s = {"maia9", "lynx_bot"};
+        String[] s = {"maia9", "lynx_bot", "munfish", "maia1", "maia5"};
         int picker = s.length;
         int index = new Random().nextInt(picker);
         String botname = s[index];
@@ -58,21 +65,21 @@ public class LichessBotRunner {
                     if (!isRated) {
                         if (!Objects.equals(challenge.challenge().players().challengerOpt().get().user().name(), "LISEBOT")) {
                             level = LiquidSearchEngine.determineAdaptability(challenge.challenge().players().challengerOpt().get().user().name());
+                        }else{
+                            level = Liquid_Levels.BEAST;
                         }
                     } else {
                         level = Liquid_Levels.BEAST;
                     }
                     boolean isCoores = challenge.challenge().gameType().timeControl().speed() == Speed.correspondence;
                     System.out.println(challenge);
-                    if (std && !isCoores && !isPlaying && !isRated) {
+                    if (std && !isCoores && !isPlaying) {
                         bot.acceptChallenge(event.id());
                     } else if (isCoores) {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::timeControl);
 
                     } else if (isPlaying) {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::later);
-                    } else if (isRated) {
-                        bot.declineChallenge(event.id(), Enums.DeclineReason.casual);
                     } else {
                         bot.declineChallenge(event.id(), Enums.DeclineReason.Provider::variant);
                     }
